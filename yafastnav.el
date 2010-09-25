@@ -45,10 +45,24 @@
 (defgroup yafastnav nil "yet another fastnav."
   :prefix "yafastnav-" :group 'convenience)
 
-(defcustom yafastnav-regex
+(defcustom yafastnav-default-regex
   "\\([a-zA-Z_?]+[a-zA-Z0-9_-]+\\)"
   "リストアップする要素の指定用正規表現"
   :type 'regexp
+  :group 'yafastnav)
+
+(defcustom yafastnav-mode-regex-alist
+  '(
+    (fundamental-mode . "\\([a-zA-Z_?あ-んア-ン]+[a-zA-Z0-9_-あ-んア-ン]+\\)")
+    (text-mode . "\\([a-zA-Z_?あ-んア-ン]+[a-zA-Z0-9_-あ-んア-ン]+\\)")
+    )
+  "モード別の正規表現の指定用連想リスト"
+  :type '(repeat (symbol . regexp))
+  :group 'yafastnav)
+
+(defcustom yafastnav-more-shortcutkey ? 
+  "次の要素のリストアップの実行ショートカットキー yafastnav-shortcut-keysに含まれている文字だと不具合がでるので注意。"
+  :type 'char
   :group 'yafastnav)
 
 (defcustom yafastnav-shortcut-keys
@@ -57,14 +71,14 @@
        ?q ?w ?e ?r ?t ?y ?u ?i ?o ?p
        ?z ?x ?c ?v ?b ?n ?m
        ?1 ?2 ?3 ?4 ?5 ?6 ?7 ?8 ?9 ?0
-       ?, ?. ?: ?- ?^ ?;
        ?A ?S ?D ?F ?G ?H ?K ?L
        ?Q ?W ?E ?R ?T ?Y ?U ?I ?O ?P
        ?Z ?X ?C ?V ?B ?N ?M
-       ?< ?> ?@ ?\* ?\[ ?\]
-       ?\\ ?\  ?' ?( ?) ?=
-       ?~ ?| ?{ ?} ?\_
-       ?! ?\" ?# ?$ ?% ?&
+       ?, ?. ?: ?- ?^ ?;
+       ;; ?< ?> ?@ ?\* ?\[ ?\]
+       ;; ?\\ ?\  ?' ?( ?) ?=
+       ;; ?~ ?| ?{ ?} ?\_
+       ;; ?! ?\" ?# ?$ ?% ?&
        )
      "要素の選択用ショートカットキーリスト"
      :type 'string
@@ -122,19 +136,29 @@
 
 (defun yafastnav-jump-to-between-point (top bottom backward)
   "候補の作成とジャンプの実行"
- (let ((ret) (ls nil) (ols nil) (index 0) (start-pos (point)))
+ (let ((ret)
+       (ls nil)
+       (ols nil)
+       (index 0)
+       (start-pos (point))
+       (end-pos nil)
+       (char nil)
+       (regex (assoc major-mode yafastnav-mode-regex-alist)))
+   (if (eq regex nil)
+     (setq regex yafastnav-default-regex)
+     (setq regex (cdr regex)))
    (save-excursion
      (setq inhibit-quit t) ;; C-g で中断されないように
      (goto-char top)
      (while
 	 (and
-	  (if backward
-	      (re-search-backward yafastnav-regex bottom 1)
-	    (re-search-forward yafastnav-regex bottom 1))
 	  (nth index yafastnav-shortcut-keys)
 	  (if backward
 	      (>= (point) bottom)
-	    (<= (point) bottom)))
+	    (<= (point) bottom))
+	  (if backward
+	      (re-search-backward regex bottom 1)
+	    (re-search-forward regex bottom 1)))
        (save-excursion
 	 (goto-char (match-beginning 0))
 	 (add-to-list 'ls
@@ -152,15 +176,23 @@
            (overlay-put ov 'priority 100)
 	   (add-to-list 'ols ov)
            )
-         (setq index (1+ index))))
-     (goto-char start-pos)
-     (when (> index 0)
-       (setq ret (assoc (read-event "jump to?:") ls))
-	nil))
-   (if ret
-       (goto-char (nth 1 ret))
-     (message "none candidate."))
-   (dolist (o ols)
-    (delete-overlay o))))
-  
+         (setq index (1+ index))
+	 ))
+     (setq end-pos (point))
+     (goto-char start-pos))
+   (when (> index 0)
+     (progn
+       (setq char (read-event "jump to?:"))
+       (if (eq char yafastnav-more-shortcutkey)
+	   (progn
+	     (dolist (o ols)
+	       (delete-overlay o))
+	     (yafastnav-jump-to-between-point (- end-pos 1) bottom backward)
+	     )
+	 (progn
+	   (dolist (o ols)
+	     (delete-overlay o))
+	   (goto-char (nth 1 (assoc char ls))))))
+     (message "none candidate."))))
+
 (provide 'yafastnav)

@@ -61,7 +61,8 @@
   :group 'yafastnav)
 
 (defcustom yafastnav-more-shortcutkey ? 
-  "次の要素のリストアップの実行ショートカットキー yafastnav-shortcut-keysに含まれている文字だと不具合がでるので注意。"
+  "次の要素のリストアップの実行ショートカットキー
+  yafastnav-shortcut-keysに含まれている文字だと不具合がでるので注意。"
   :type 'char
   :group 'yafastnav)
 
@@ -180,7 +181,7 @@
 	 ))
      (setq end-pos (point))
      (goto-char start-pos))
-   (when (> index 0)
+   (if (> index 0)
      (progn
        (setq char (read-event "jump to?:"))
        (if (eq char yafastnav-more-shortcutkey)
@@ -189,10 +190,13 @@
 	       (delete-overlay o))
 	     (yafastnav-jump-to-between-point (- end-pos 1) bottom backward)
 	     )
-	 (progn
-	   (dolist (o ols)
-	     (delete-overlay o))
-	   (goto-char (nth 1 (assoc char ls))))))
-     (message "none candidate."))))
+	 (unless (eq (assoc char ls) nil)
+	   (progn
+	     (dolist (o ols)
+	       (delete-overlay o))
+	     (goto-char (nth 1 (assoc char ls)))))))
+       (message "none candidate."))
+ (dolist (o ols)
+   (delete-overlay o))))
 
 (provide 'yafastnav)

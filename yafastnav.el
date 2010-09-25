@@ -51,10 +51,16 @@
   :type 'regexp
   :group 'yafastnav)
 
+(defcustom yafastnav-text-mode-regex
+  "\\([a-zA-Z_?あ-んア-ン]+[a-zA-Z0-9_-あ-んア-ン]+\\)"
+  "テキストモード用リストアップする要素の指定用正規表現"
+  :type 'regexp
+  :group 'yafastnav)
+
 (defcustom yafastnav-mode-regex-alist
   '(
-    (fundamental-mode . "\\([a-zA-Z_?あ-んア-ン]+[a-zA-Z0-9_-あ-んア-ン]+\\)")
-    (text-mode . "\\([a-zA-Z_?あ-んア-ン]+[a-zA-Z0-9_-あ-んア-ン]+\\)")
+    (fundamental-mode . yafastnav-text-mode-regex)
+    (text-mode . yafastnav-text-mode-regex)
     )
   "モード別の正規表現の指定用連想リスト"
   :type '(repeat (symbol . regexp))

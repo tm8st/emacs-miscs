@@ -19,7 +19,7 @@
 	  ((caption . "[V] ")
 	   (regexp . "^[ \t]*var"))
 	  ((caption . "[F] ")
-	   (regexp . "^[ \t]*\\(native \\)?\\(final \\)?\\(function\\)[ \t]+\\([a-zA-Z_]+[a-zA-Z0-9_]*\\)"))
+	   (regexp . "^[ \t]*\\(static \\)?\\(public \\)?\\(private \\)?\\(protected \\)?\\(native \\)?\\(final \\)?\\(function\\)[ \t]+\\([a-zA-Z_]+[a-zA-Z0-9_]*\\)"))
 	  ((caption . "[E] ")
 	   (regexp . "^[ \t]*\\(event \\)\\([a-zA-Z_]+[a-zA-Z0-9_]*\\)"))	
 	  ((caption . "[Class] ")

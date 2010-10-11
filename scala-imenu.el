@@ -17,16 +17,15 @@
 	   (regexp . "^[ \t]*\\(abstract \\)?\\(case \\)?class[ \n\t]+\\([a-zA-Z_]+[a-zA-Z0-9_]*\\)"))
 	  ((symbol . "[OBJECT] ")
 	   (regexp . "^[ \t]*object[ \n\t]+\\([a-zA-Z_]+[a-zA-Z0-9_]*\\)"))
-	  ((symbol . "[trait]  ")
+	  ((symbol . "[TRAIT]  ")
 	   (regexp . "^[ \t]*trait[ \n\t]+\\([a-zA-Z_]+[a-zA-Z0-9_]*\\)"))
-	  ((symbol . "[F]      ")
+	  ((symbol . "[FUNC]      ")
 	   (regexp . "^[ \t]*\\(private \\)?\\(override \\)?\\(final \\)?\\(def \\)+\\([a-zA-Z_]+[a-zA-Z0-9_]*\\)"))
 	  ((symbol . "[VAL]    ")
 	   (regexp . "^[ \t]*\\(private \\)?\\var[ \t]"))
 	  ((symbol . "[VAR]    ")
 	   (regexp . "^[ \t]*\\(private \\)?\\val[ \t]"))
 	  )
-	"use this when create index."
 	)
 
 (defun scala-imenu-alist-attr (name iter)

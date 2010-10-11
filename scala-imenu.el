@@ -10,48 +10,26 @@
 ;;; Code:
 
 (eval-when-compile (require 'cl))
+(require 'easy-imenu-index-create)
 
-(defvar scala-imenu-alist
-	`(
-	  ((symbol . "[CLASS]  ")
-	   (regexp . "^[ \t]*\\(abstract \\)?\\(case \\)?class[ \n\t]+\\([a-zA-Z_]+[a-zA-Z0-9_]*\\)"))
-	  ((symbol . "[OBJECT] ")
-	   (regexp . "^[ \t]*object[ \n\t]+\\([a-zA-Z_]+[a-zA-Z0-9_]*\\)"))
-	  ((symbol . "[TRAIT]  ")
-	   (regexp . "^[ \t]*trait[ \n\t]+\\([a-zA-Z_]+[a-zA-Z0-9_]*\\)"))
-	  ((symbol . "[FUNC]      ")
-	   (regexp . "^[ \t]*\\(private \\)?\\(override \\)?\\(final \\)?\\(def \\)+\\([a-zA-Z_]+[a-zA-Z0-9_]*\\)"))
-	  ((symbol . "[VAL]    ")
-	   (regexp . "^[ \t]*\\(private \\)?\\var[ \t]"))
-	  ((symbol . "[VAR]    ")
-	   (regexp . "^[ \t]*\\(private \\)?\\val[ \t]"))
-	  )
-	)
-
-(defun scala-imenu-alist-attr (name iter)
-  (cdr (assq name iter)))
-
-(defun scala-imenu-create-index ()
-  "get current buffer imenu index."
-  (save-excursion
-    ;; (set-buffer buffer)
-    (let ((index) (case-fold-search nil))
-      (dolist (iter scala-imenu-alist)
-	(goto-char (point-min))
-	(while (re-search-forward (scala-imenu-alist-attr 'regexp iter) nil t)
-	  (goto-char (match-beginning 0))
-	  (push (cons
-		 (concat (scala-imenu-alist-attr 'symbol iter)
-			 (replace-regexp-in-string "[\n\t]" " " (thing-at-point 'line)))
-		 ;; buffer
-		 (point))
-		index)
-	  (goto-char (match-end 0))))
-      (nreverse index))))
-
-(defun scala-imenu-set-for-current-buffer ()
-  ""
-  (interactive)
-  (setq imenu-create-index-function 'scala-imenu-create-index))
+(defvar scala-imenu-source
+  (make-easy-imenu-index-source
+   :alist
+   `(
+     ((caption . "[CLASS]  ")
+      (regexp . "^[ \t]*\\(abstract \\)?\\(case \\)?class[ \n\t]+\\([a-zA-Z_]+[a-zA-Z0-9_]*\\)"))
+     ((caption . "[OBJECT] ")
+      (regexp . "^[ \t]*object[ \n\t]+\\([a-zA-Z_]+[a-zA-Z0-9_]*\\)"))
+     ((caption . "[TRAIT]  ")
+      (regexp . "^[ \t]*trait[ \n\t]+\\([a-zA-Z_]+[a-zA-Z0-9_]*\\)"))
+     ((caption . "[FUNC]      ")
+      (regexp . "^[ \t]*\\(private \\)?\\(override \\)?\\(final \\)?\\(def \\)+\\([a-zA-Z_]+[a-zA-Z0-9_]*\\)"))
+     ((caption . "[VAL]    ")
+      (regexp . "^[ \t]*\\(private \\)?\\var[ \t]"))
+     ((caption . "[VAR]    ")
+      (regexp . "^[ \t]*\\(private \\)?\\val[ \t]"))
+     )
+   :add-line-number-to-item t
+   ))
 
 (provide 'scala-imenu)

@@ -12,35 +12,30 @@
 (eval-when-compile (require 'cl))
 (require 'easy-imenu-index-create)
 
-(defvar unreal-imenu-alist
-	`(
-	  ((caption . "[S] ")
-	   (regexp . "^[ \t]*state\\(()\\)?[ \t]*"))
-	  ((caption . "[V] ")
-	   (regexp . "^[ \t]*var"))
-	  ((caption . "[F] ")
-	   (regexp . "^[ \t]*\\(static \\)?\\(public \\)?\\(private \\)?\\(protected \\)?\\(simulated \\)?\\(native \\)?\\(final \\)?\\(function\\)[ \t]+\\([a-zA-Z_]+[a-zA-Z0-9_]*\\)"))
-	  ((caption . "[E] ")
-	   (regexp . "^[ \t]*\\(simulated \\)?\\(event \\)\\([a-zA-Z_]+[a-zA-Z0-9_]*\\)"))	
-	  ((caption . "[Class] ")
-	   (regexp . "^[ \t]*class[ \n\t]+\\([a-zA-Z_]+[a-zA-Z0-9_]*\\)"))
-	  ;; (regexp . "^[ \t]*class[ \n\t]+\\([a-zA-Z_]+[a-zA-Z0-9_]*\\)[ \t\n]*\\(:\\|{\\)"))
-	  ((caption . "[Strucs] ")
-	   (regexp . "^[ \t]*struct[ \n\t]+\\([a-zA-Z_]+[a-zA-Z0-9_]*\\)[ \t\n]*[{]"))
-	  )
-	"use this when create index."
-	)
-
-(defun unreal-imenu-create-index ()
-  ""
-  (interactive)
-  (easy-imenu-index-create-imenu-create-index unreal-imenu-alist))
+(defvar unreal-imenu-source
+    (make-easy-imenu-index-source
+   :alist
+   `(
+     ((caption . "[State] ")
+      (regexp . "^[ \t]*state\\(()\\)?[ \t]*"))
+     ((caption . "[Var] ")
+      (regexp . "^[ \t]*var"))
+     ((caption . "[Func] ")
+      (regexp . "^[ \t]*\\(static \\)?\\(public \\)?\\(private \\)?\\(protected \\)?\\(simulated \\)?\\(native \\)?\\(final \\)?\\(function\\)[ \t]+\\([a-zA-Z_]+[a-zA-Z0-9_]*\\)"))
+     ((caption . "[Event] ")
+      (regexp . "^[ \t]*\\(simulated \\)?\\(event \\)\\([a-zA-Z_]+[a-zA-Z0-9_]*\\)"))	
+     ((caption . "[Classs] ")
+      (regexp . "^[ \t]*class[ \n\t]+\\([a-zA-Z_]+[a-zA-Z0-9_]*\\)"))
+     ;; (regexp . "^[ \t]*class[ \n\t]+\\([a-zA-Z_]+[a-zA-Z0-9_]*\\)[ \t\n]*\\(:\\|{\\)"))
+     ((caption . "[Strucs] ")
+      (regexp . "^[ \t]*struct[ \n\t]+\\([a-zA-Z_]+[a-zA-Z0-9_]*\\)[ \t\n]*[{]"))
+     )
+   :add-line-number-to-item t
+   ))
 
 (defun unreal-imenu-set-for-current-buffer ()
   ""
   (interactive)
-  (setq imenu-create-index-function 'unreal-imenu-create-index))
-  ;; (easy-imenu-index-create-imenu-set-for-current-buffer unreal-imenu-alist))
-  ;; (easy-imenu-index-create-imenu-set-for-current-buffer 'unreal-imenu-create-index))
+  (easy-imenu-index-create-imenu-set-for-current-buffer unreal-imenu-source))
 
 (provide 'unreal)

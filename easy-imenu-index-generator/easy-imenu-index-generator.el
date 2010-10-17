@@ -77,8 +77,8 @@
 	  (push (cons
 		 (concat (easy-imenu-index-generator-imenu-alist-attr 'caption iter)
 			 (replace-regexp-in-string "[\n\t]" " " (thing-at-point 'line))
-			 (when (easy-imenu-index-generator-setting-add-line-number-to-item source)
-			   (number-to-string (count-lines (point-min) (match-beginning 0))))
+			 (when (easy-imenu-index-generator-setting-add-line-number-to-item setting)
+			   (concat " line:"(number-to-string (count-lines (point-min) (match-beginning 0)))))
 			 )
 		 (point))
 		index-list)

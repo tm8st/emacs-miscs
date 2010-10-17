@@ -123,61 +123,62 @@ and you have to scroll or press \\[recenter-top-bottom] to update the numbers."
 (defun yalinum-update-window (win)
   "Update line numbers for the portion visible in window WIN."
   ;; calc position in window.
-  (move-to-window-line 0)
-  (let* ((top-line (count-lines (point) (point-min)))
-	 ;; avoid zero divide.
-	 (line-max (count-lines (point-min) (point-max)))
-	 (start-line (+ top-line (* (/ (float top-line) (max 1 line-max)) (window-height win))))
-	 )
-    (goto-char (window-start win))
-    (let* ((line (line-number-at-pos))
-	   (limit (window-end win t))
-	   (fmt
-	    (let ((w (length (number-to-string line-max))))
-	      ;; replace format string.
-	      (replace-regexp-in-string
-	       "\\$num"
-	       (number-to-string (max w yalinum-line-number-length-min))
-	       yalinum-line-number-display-format)))
-	   (width 0)
-	   ;; calc bar variables.
-	   (bar-height (max 1 (truncate (* (/ (window-height win) (float (max 1 line-max))) (window-height win)))))
-	   (bar-min (min (max start-line 0) (- line-max bar-height)))
-	   (bar-max (min line-max (+ bar-min bar-height))))
-      (run-hooks 'yalinum-before-numbering-hook)
-      ;; Create an overlay (or reuse an existing one) for each
-      ;; line visible in this window, if necessary.
-      (while (and (not (eobp)) (<= (point) limit))
-	(let* ((str (if fmt
-			(propertize (format fmt line)
-				    'face
-				    (if (and (>= line bar-min) (<= line bar-max))
-					'yalinum-bar-face
-				      'yalinum-face))))
-	       (visited (catch 'visited
-			  (dolist (o (overlays-in (point) (point)))
-			    (when (equal-including-properties
-				   (overlay-get o 'yalinum-str) str)
-			      (unless (memq o yalinum-overlays)
-				(push o yalinum-overlays))
-			      (setq yalinum-available (delq o yalinum-available))
-			      (throw 'visited t))))))
-	  (setq width (max width (length str)))
-	  (unless visited
-	    (let ((ov (if (null yalinum-available)
-			  (make-overlay (point) (point))
-			(move-overlay (pop yalinum-available) (point) (point)))))
-	      (push ov yalinum-overlays)
-	      (overlay-put ov 'before-string
-			   (propertize " " 'display `((margin left-margin) ,str)))
-	      (overlay-put ov 'yalinum-str str))))
-	;; Text may contain those nasty intangible properties, but that
-	;; shouldn't prevent us from counting those lines.
-	(let ((inhibit-point-motion-hooks t))
-	  (forward-line))
-	(setq line (1+ line)))
-      (set-window-margins win (truncate (* (+ width yalinum-width-base) yalinum-width-scale)))      
-      )))
+  (save-excursion
+    (move-to-window-line 0)
+    (let* ((top-line (count-lines (point) (point-min)))
+	   ;; avoid zero divide.
+	   (line-max (count-lines (point-min) (point-max)))
+	   (start-line (+ top-line (* (/ (float top-line) (max 1 line-max)) (window-height win))))
+	   )
+      (goto-char (window-start win))
+      (let* ((line (line-number-at-pos))
+	     (limit (window-end win t))
+	     (fmt
+	      (let ((w (length (number-to-string line-max))))
+		;; replace format string.
+		(replace-regexp-in-string
+		 "\\$num"
+		 (number-to-string (max w yalinum-line-number-length-min))
+		 yalinum-line-number-display-format)))
+	     (width 0)
+	     ;; calc bar variables.
+	     (bar-height (max 1 (truncate (* (/ (window-height win) (float (max 1 line-max))) (window-height win)))))
+	     (bar-min (min (max start-line 0) (- line-max bar-height)))
+	     (bar-max (min line-max (+ bar-min bar-height))))
+	(run-hooks 'yalinum-before-numbering-hook)
+	;; Create an overlay (or reuse an existing one) for each
+	;; line visible in this window, if necessary.
+	(while (and (not (eobp)) (<= (point) limit))
+	  (let* ((str (if fmt
+			  (propertize (format fmt line)
+				      'face
+				      (if (and (>= line bar-min) (<= line bar-max))
+					  'yalinum-bar-face
+					'yalinum-face))))
+		 (visited (catch 'visited
+			    (dolist (o (overlays-in (point) (point)))
+			      (when (equal-including-properties
+				     (overlay-get o 'yalinum-str) str)
+				(unless (memq o yalinum-overlays)
+				  (push o yalinum-overlays))
+				(setq yalinum-available (delq o yalinum-available))
+				(throw 'visited t))))))
+	    (setq width (max width (length str)))
+	    (unless visited
+	      (let ((ov (if (null yalinum-available)
+			    (make-overlay (point) (point))
+			  (move-overlay (pop yalinum-available) (point) (point)))))
+		(push ov yalinum-overlays)
+		(overlay-put ov 'before-string
+			     (propertize " " 'display `((margin left-margin) ,str)))
+		(overlay-put ov 'yalinum-str str))))
+	  ;; Text may contain those nasty intangible properties, but that
+	  ;; shouldn't prevent us from counting those lines.
+	  (let ((inhibit-point-motion-hooks t))
+	    (forward-line))
+	  (setq line (1+ line)))
+	(set-window-margins win (truncate (* (+ width yalinum-width-base) yalinum-width-scale)))      
+	))))
 
 (defun yalinum-after-change (beg end len)
   ;; update overlays on deletions, and after newlines are inserted

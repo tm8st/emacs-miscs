@@ -126,8 +126,8 @@ and you have to scroll or press \\[recenter-top-bottom] to update the numbers."
   (save-excursion
     (move-to-window-line 0)
     (let* ((top-line (count-lines (point) (point-min)))
-	   ;; avoid zero divide.
 	   (line-max (count-lines (point-min) (point-max)))
+	   ;; avoid zero divide.
 	   (start-line (+ top-line (* (/ (float top-line) (max 1 line-max)) (window-height win))))
 	   )
       (goto-char (window-start win))
